@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/// @title RewardToken — ERC-20 distributed proportional to knowledge quality scores
+contract RewardToken is ERC20, Ownable {
+    uint256 public constant MAX_SUPPLY = 100_000_000 * 10 ** 18;
+
+    event RewardMinted(address indexed to, uint256 amount, uint256 knowledgeTokenId);
+
+    constructor() ERC20("SynapseReward", "SYNR") Ownable(msg.sender) {}
+
+    function mintReward(address to, uint256 amount, uint256 knowledgeTokenId)
+        external onlyOwner
+    {
+        require(totalSupply() + amount <= MAX_SUPPLY, "Exceeds max supply");
+        _mint(to, amount);
+        emit RewardMinted(to, amount, knowledgeTokenId);
+    }
+}

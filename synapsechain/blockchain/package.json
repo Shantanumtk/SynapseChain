@@ -1,0 +1,18 @@
+{
+  "name": "synapsechain-blockchain",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.js --network ganache",
+    "seed:local": "hardhat run scripts/seed.js --network ganache",
+    "fresh": "npm run compile && npm run deploy:local && npm run seed:local"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2"
+  }
+}

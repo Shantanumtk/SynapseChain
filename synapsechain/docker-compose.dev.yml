@@ -1,0 +1,70 @@
+services:
+  ganache:
+    build:
+      context: .
+      dockerfile: Dockerfile.ganache
+    container_name: synapse-ganache
+    ports:
+      - "8545:8545"
+    networks:
+      - synapsenet
+    restart: unless-stopped
+
+  deployer:
+    build:
+      context: .
+      dockerfile: Dockerfile.deployer
+    container_name: synapse-deployer
+    environment:
+      - GANACHE_URL=http://ganache:8545
+      - DEPLOYER_PRIVATE_KEY=0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d
+    depends_on:
+      - ganache
+    volumes:
+      - ./blockchain/artifacts:/blockchain/artifacts
+      - ./blockchain/scripts:/blockchain/scripts
+      - ./backend/core:/backend_core
+      - ./frontend/src/utils:/frontend_utils
+    networks:
+      - synapsenet
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: synapse-backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - GANACHE_URL=http://ganache:8545
+      - ARTIFACTS_PATH=/artifacts
+      - ADDRESSES_PATH=/addresses.json
+    depends_on:
+      - ganache
+    volumes:
+      - ./backend:/app
+      - ./blockchain/artifacts:/artifacts:ro
+      - ./blockchain/scripts/contract_addresses.json:/addresses.json:ro
+    networks:
+      - synapsenet
+    restart: on-failure
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: synapse-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - synapsenet
+    restart: unless-stopped
+
+networks:
+  synapsenet:
+    driver: bridge

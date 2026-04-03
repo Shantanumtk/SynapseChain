@@ -1,0 +1,17 @@
+FROM node:20
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g ganache@latest
+
+EXPOSE 8545
+
+CMD ["ganache", \
+     "--server.host", "0.0.0.0", \
+     "--server.port", "8545", \
+     "--wallet.totalAccounts", "10", \
+     "--wallet.defaultBalance", "1000", \
+     "--chain.networkId", "1337", \
+     "--chain.chainId", "1337", \
+     "--wallet.deterministic", "true", \
+     "--miner.blockGasLimit", "12000000"]

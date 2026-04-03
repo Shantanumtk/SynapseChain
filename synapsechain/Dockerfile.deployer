@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /blockchain
+
+RUN apk add --no-cache python3 make g++
+
+COPY blockchain/package*.json ./
+RUN npm install
+
+COPY blockchain/ .
+
+CMD ["sh", "-c", "npm run compile && npm run deploy:local && npm run seed:local && echo DEPLOY_DONE"]

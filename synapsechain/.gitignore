@@ -1,0 +1,10 @@
+node_modules/
+.env
+__pycache__/
+*.pyc
+blockchain/artifacts/
+blockchain/cache/
+blockchain/typechain-types/
+dist/
+.terraform/
+*.tfstate

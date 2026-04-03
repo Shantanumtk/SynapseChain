@@ -1,0 +1,60 @@
+version: "3.9"
+
+# Production compose — EC2 / any Linux VPS
+# Usage: docker-compose up -d --build
+
+services:
+  ganache:
+    image: node:20-alpine
+    container_name: synapse-ganache
+    working_dir: /app
+    command: sh -c "npm install -g ganache && ganache --deterministic --accounts 10 --chainId 1337 --networkId 1337 --gasLimit 12000000 --host 0.0.0.0 --db /data"
+    volumes:
+      - ganache-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8545 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: synapse-backend
+    env_file: .env
+    environment:
+      - GANACHE_URL=http://ganache:8545
+      - ARTIFACTS_PATH=/artifacts
+      - ADDRESSES_PATH=/addresses.json
+    depends_on:
+      ganache:
+        condition: service_healthy
+    volumes:
+      - ./blockchain/artifacts:/artifacts:ro
+      - ./blockchain/scripts/contract_addresses.json:/addresses.json:ro
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: synapse-frontend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: synapse-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  ganache-data:
