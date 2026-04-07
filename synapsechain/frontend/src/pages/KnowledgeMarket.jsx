@@ -167,7 +167,8 @@ export default function KnowledgeMarket() {
         addresses.KnowledgeNFT,
         [
           "function setApprovalForAll(address operator, bool approved)",
-          "function isApprovedForAll(address owner, address operator) view returns (bool)"
+          "function isApprovedForAll(address owner, address operator) view returns (bool)",
+          "function ownerOf(uint256 tokenId) view returns (address)"
         ],
         s
       );
@@ -181,11 +182,18 @@ export default function KnowledgeMarket() {
       const cleanPrice = Math.round(evaluation.suggested_price_eth * 1e6) / 1e6;
       const priceWei = parseEther(cleanPrice.toString());
 
-      // Small delay to ensure mint tx is indexed by Ganache
-      await new Promise(r => setTimeout(r, 1000));
+      // Wait for mint to be indexed
+      await new Promise(r => setTimeout(r, 2000));
 
-      const approveTx = await nftContract.setApprovalForAll(addresses.Marketplace, true);
-      await approveTx.wait();
+      // Check if already approved to avoid double popup
+      const isApproved = await nftContract.isApprovedForAll(address, addresses.Marketplace);
+      if (!isApproved) {
+        setTxStatus("⏳ Step 3a/3 — Approving Marketplace in MetaMask...");
+        const approveTx = await nftContract.setApprovalForAll(addresses.Marketplace, true);
+        await approveTx.wait();
+        setTxStatus("⏳ Approval confirmed, waiting 1s...");
+        await new Promise(r => setTimeout(r, 1000));
+      }
       setTxStatus("⏳ Step 3/3 — Listing NFT in MetaMask...");
       const listTx = await marketContract.list(tokenId, priceWei);
       await listTx.wait();

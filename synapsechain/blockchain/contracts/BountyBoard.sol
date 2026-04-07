@@ -37,6 +37,7 @@ contract BountyBoard is ReentrancyGuard {
     function fulfillBounty(uint256 bountyId, address fulfiller) external nonReentrant {
         Bounty storage b = bounties[bountyId];
         require(b.status == BountyStatus.Open, "Not open");
+        require(fulfiller != b.poster, "Cannot fulfill your own bounty");
         b.status = BountyStatus.Fulfilled;
         b.fulfiller = fulfiller;
         payable(fulfiller).transfer(b.reward);

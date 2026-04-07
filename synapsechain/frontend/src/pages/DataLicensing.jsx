@@ -97,7 +97,7 @@ export default function DataLicensing() {
       const tx  = await c.licenseMarketplace.listData(sellerForm.description, minWei);
       const rec = await tx.wait();
       const id  = rec.logs[0]?.topics[1] ? parseInt(rec.logs[0].topics[1], 16) : listings.length + 1;
-      setListings(prev => [...prev, {
+      setLocalListings(prev => [...prev, {
         id, description: sellerForm.description,
         minCompensation: sellerForm.minCompensation,
         durationDays:    sellerForm.durationDays,

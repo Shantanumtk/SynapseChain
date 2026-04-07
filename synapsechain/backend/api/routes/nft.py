@@ -111,7 +111,7 @@ async def mint_nft(req: MintRequest):
         ).build_transaction({
             "from":  deployer.address,
             "nonce": w3.eth.get_transaction_count(deployer.address),
-            "gas":   300000,
+            "gas":   600000,
         })
 
         signed = w3.eth.account.sign_transaction(tx, settings.deployer_private_key)
@@ -119,7 +119,11 @@ async def mint_nft(req: MintRequest):
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt.status == 0:
-            raise Exception("Mint transaction reverted — content may already be minted (duplicate hash)")
+            print(f"Mint reverted! Receipt: {receipt}")
+            print(f"Content hash: {req.content_hash}")
+            print(f"Token URI: {req.token_uri}")
+            print(f"To: {req.to}")
+            raise Exception(f"Mint transaction reverted — tx: {tx_hash.hex()}")
 
         # Get tokenId from totalSupply after mint
         try:
