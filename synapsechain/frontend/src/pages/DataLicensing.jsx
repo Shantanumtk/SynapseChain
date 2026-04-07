@@ -106,6 +106,7 @@ export default function DataLicensing() {
       }]);
       setTx(`✅ Data listed with ID #${id}`);
       setListModal(false);
+      await refetch();
     } catch (e) {
       setTx(`❌ ${e.message}`);
     } finally {
@@ -130,6 +131,7 @@ export default function DataLicensing() {
       setTx(`✅ License deal executed for ${dealModal.result.agreed_compensation_eth} ETH`);
       setDealModal(null);
       setResult(null);
+      await refetch();
     } catch (e) {
       setTx(`❌ ${e.message}`);
     } finally {

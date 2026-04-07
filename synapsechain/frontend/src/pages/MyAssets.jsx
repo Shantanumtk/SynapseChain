@@ -77,7 +77,7 @@ export default function MyAssets() {
 
       setTx(`✅ License #${revokeModal.tokenId} revoked. Tx: ${txHash.slice(0, 12)}…`);
       setRevoke(null);
-      // Refetch chain data to update license status
+      await refetch();
       setTimeout(() => refetch(), 2000);
     } catch (e) {
       setTx(`❌ ${e.message}`);
@@ -150,7 +150,7 @@ export default function MyAssets() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {["nfts", "licenses"].map(t => (
+        {["nfts", "licenses", "history"].map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -158,7 +158,7 @@ export default function MyAssets() {
               tab === t ? "border-accent text-accent" : "border-transparent text-subtle hover:text-text"
             }`}
           >
-            {t === "nfts" ? `Knowledge NFTs (${myNFTs.length})` : `Data Licenses (${myLicenses.length})`}
+            {t === "nfts" ? `Knowledge NFTs (${myNFTs.length})` : t === "licenses" ? `Data Licenses (${myLicenses.length})` : "Transaction History"}
           </button>
         ))}
       </div>
@@ -225,6 +225,47 @@ export default function MyAssets() {
           </div>
         )
       )}
+
+      {tab === "history" && (() => {
+        const titleMap2 = (() => { try { return JSON.parse(localStorage.getItem("sc_nft_titles") || "{}"); } catch { return {}; } })();
+        const txns = [];
+        Object.entries(ownedNFTs || {}).forEach(([tokenId, owner]) => {
+          if (owner?.toLowerCase() === address?.toLowerCase()) {
+            const meta = titleMap2[Number(tokenId)] || {};
+            txns.push({ type: "Minted NFT", detail: meta.title || "Knowledge Asset #" + tokenId, tokenId: Number(tokenId), dir: "out" });
+          }
+        });
+        myLicenses.forEach(l => {
+          if (l.dataOwner?.toLowerCase() === address?.toLowerCase()) {
+            txns.push({ type: "License Created", detail: l.useCase + " · " + l.compensation + " ETH received", tokenId: l.tokenId, dir: "in" });
+            if (l.status === "revoked") txns.push({ type: "License Revoked", detail: "License #" + l.tokenId + " revoked", tokenId: l.tokenId, dir: "out" });
+          }
+          if (l.aiBuyer?.toLowerCase() === address?.toLowerCase()) {
+            txns.push({ type: "License Purchased", detail: l.useCase + " · " + l.compensation + " ETH sent", tokenId: l.tokenId, dir: "out" });
+          }
+        });
+        if (txns.length === 0) return (
+          <div key="empty"><EmptyState icon="◎" title="No transactions yet" description="Your on-chain activity will appear here." /></div>
+        );
+        return (
+          <div key="history" className="space-y-2">
+            {txns.map((t, i) => (
+              <div key={i} className="card flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${t.dir === "in" ? "bg-success/10 text-success" : "bg-accent/10 text-accent"}`}>
+                    {t.dir === "in" ? "↓" : "↑"}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-text">{t.type}</p>
+                    <p className="text-xs text-subtle">{t.detail}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-muted font-mono">#{t.tokenId}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {revokeModal && (
         <TxnModal

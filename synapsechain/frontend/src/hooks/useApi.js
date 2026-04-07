@@ -20,6 +20,18 @@ async function get(path) {
   return res.json();
 }
 
+async function upload(path, formData) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || "Upload failed");
+  }
+  return res.json();
+}
+
 export const api = {
   evaluateNFT:      (body) => post("/nft/evaluate", body),
   negotiateLicense: (body) => post("/license/negotiate", body),
@@ -27,4 +39,5 @@ export const api = {
   matchBounty:      (body) => post("/bounty/match", body),
   agentStatus:      ()     => get("/agent/status"),
   health:           ()     => get("/health"),
+  uploadFile:       (fd)   => upload("/nft/upload", fd),
 };

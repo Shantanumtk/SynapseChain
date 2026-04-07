@@ -137,7 +137,8 @@ export function useChainData(provider) {
               durationDays: Math.floor(Number(l.duration) / 86400),
               compensation: formatEther(l.compensation),
               createdAt:    new Date(Number(l.createdAt) * 1000).toISOString().split("T")[0],
-              status:       ["active", "revoked", "expired"][Number(l.status)] || "active",
+              status:       Number(l.status) === 1 ? "revoked" :
+              (Number(l.createdAt) + Number(l.duration)) < Math.floor(Date.now() / 1000) ? "expired" : "active",
             };
           } catch { return null; }
         })

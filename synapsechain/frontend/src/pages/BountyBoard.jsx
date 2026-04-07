@@ -65,6 +65,7 @@ export default function BountyBoard() {
       setTx(`✅ Bounty #${id} posted with ${postForm.reward} ETH reward`);
       setPostModal(false);
       setPostForm({ description: "", reward: "0.05" });
+      await refetch();
     } catch (e) {
       setTx(`❌ ${e.message}`);
     } finally {
@@ -103,6 +104,7 @@ export default function BountyBoard() {
       ));
       setTx(`✅ Bounty #${fulfillModal.id} fulfilled — ${fulfillModal.reward} ETH released`);
       setFulfill(null);
+      await refetch();
     } catch (e) {
       setTx(`❌ ${e.message}`);
     } finally {
@@ -120,6 +122,7 @@ export default function BountyBoard() {
         b.id === bounty.id ? { ...b, status: "cancelled" } : b
       ));
       setTx(`✅ Bounty #${bounty.id} cancelled — ETH refunded`);
+      await refetch();
     } catch (e) {
       setTx(`❌ ${e.message}`);
     }

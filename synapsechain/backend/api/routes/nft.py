@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from agents import quality_agent, valuation_agent
 from core.web3_client import get_contract, get_w3
 from core.config import settings
 from web3 import Web3
+from core.ipfs_client import upload_to_ipfs
 
 router = APIRouter()
 
@@ -35,6 +36,31 @@ class MintResponse(BaseModel):
     token_id: int
     tx_hash: str
     error: str
+
+
+class UploadResponse(BaseModel):
+    cid: str
+    content_hash: str
+    ipfs_url: str
+    token_uri: str
+    error: str
+
+
+@router.post("/upload", response_model=UploadResponse)
+async def upload_file(file: UploadFile = File(...)):
+    """Upload file to local IPFS node. Returns CID and content hash."""
+    try:
+        file_bytes = await file.read()
+        if len(file_bytes) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large (max 10MB)")
+        result = upload_to_ipfs(file_bytes, file.filename)
+        if result["error"]:
+            raise HTTPException(status_code=500, detail=f"IPFS upload failed: {result['error']}")
+        return UploadResponse(**result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/evaluate", response_model=EvaluateResponse)
@@ -92,11 +118,13 @@ async def mint_nft(req: MintRequest):
         tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        # Get tokenId from totalSupply (most reliable)
+        # Get tokenId from totalSupply after mint
         try:
-            nft = get_contract("KnowledgeNFT")
-            token_id = nft.functions.totalSupply().call()
-        except Exception:
+            nft_read = get_contract("KnowledgeNFT")
+            token_id = nft_read.functions.totalSupply().call()
+            print(f"Token ID from totalSupply: {token_id}")
+        except Exception as te:
+            print(f"totalSupply failed: {te}")
             token_id = 1
 
         if req.quality_score > 0:

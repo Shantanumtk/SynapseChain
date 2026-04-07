@@ -65,6 +65,21 @@ services:
       - synapsenet
     restart: unless-stopped
 
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: synapse-ipfs
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - synapsenet
+    restart: unless-stopped
+
 networks:
   synapsenet:
     driver: bridge
+
+volumes:
+  ipfs_data:
