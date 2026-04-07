@@ -1,5 +1,3 @@
-version: "3.9"
-
 # Production compose — EC2 / any Linux VPS
 # Usage: docker-compose up -d --build
 
