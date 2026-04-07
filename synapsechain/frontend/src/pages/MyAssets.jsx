@@ -86,23 +86,7 @@ export default function MyAssets() {
     }
   }
 
-  // Load NFTs owned by current address from chain listings
-  const nftListingsKey = "sc_nft_listings";
-  useEffect(() => {
-    if (!address) return;
-    try {
-      const all = JSON.parse(localStorage.getItem(nftListingsKey) || "[]");
-      const mine = all.filter(l => l.seller?.toLowerCase() === address.toLowerCase());
-      setMyNFTs(mine.map(l => ({
-        tokenId:     l.tokenId,
-        title:       l.title,
-        score:       l.score,
-        contentHash: l.contentHash || "on-chain",
-        mintedAt:    new Date().toISOString().split("T")[0],
-      })));
-    } catch {}
-    setRB("0");
-  }, [address]);
+  // myNFTs is computed from ownedNFTs (chain Transfer events) — no useState needed
 
   // Licenses come from chain via useChainData
   const myLicenses = chainLicenses.filter(

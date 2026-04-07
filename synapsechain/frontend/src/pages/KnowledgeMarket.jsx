@@ -177,7 +177,13 @@ export default function KnowledgeMarket() {
         s
       );
 
-      const priceWei = parseEther(evaluation.suggested_price_eth.toFixed(18));
+      // Round to 6 decimal places to avoid floating point artifacts
+      const cleanPrice = Math.round(evaluation.suggested_price_eth * 1e6) / 1e6;
+      const priceWei = parseEther(cleanPrice.toString());
+
+      // Small delay to ensure mint tx is indexed by Ganache
+      await new Promise(r => setTimeout(r, 1000));
+
       const approveTx = await nftContract.setApprovalForAll(addresses.Marketplace, true);
       await approveTx.wait();
       setTxStatus("⏳ Step 3/3 — Listing NFT in MetaMask...");
@@ -197,6 +203,7 @@ export default function KnowledgeMarket() {
       setForm({ title: "", description: "", category: "AI/ML", content: "", fileName: "" });
       setEval(null);
       if (fileRef.current) fileRef.current.value = "";
+      await refetch();
     } catch (e) {
       setTxStatus(`❌ ${e.message || JSON.stringify(e)}`);
     } finally {
@@ -209,8 +216,10 @@ export default function KnowledgeMarket() {
     try {
       const s = await getSigner();
       const c = useContracts(s);
+      // Add small buffer for floating point price artifacts
+      const buyPrice = parseEther(buyModal.price.toString());
       const tx = await c.marketplace.buy(buyModal.tokenId, {
-        value: parseEther(buyModal.price.toString()),
+        value: buyPrice + BigInt(1000),
       });
       await tx.wait();
       setLocalListings(prev => prev.filter(l => l.tokenId !== buyModal.tokenId));

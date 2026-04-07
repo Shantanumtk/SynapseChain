@@ -17,7 +17,6 @@ contract KnowledgeNFT is ERC721URIStorage, Ownable {
     }
 
     mapping(uint256 => KnowledgeAsset) public assets;
-    mapping(bytes32 => bool) public usedHashes;
 
     event KnowledgeMinted(uint256 indexed tokenId, address indexed creator, string contentHash);
     event QualityScoreSet(uint256 indexed tokenId, uint8 score);
@@ -27,9 +26,6 @@ contract KnowledgeNFT is ERC721URIStorage, Ownable {
     function mint(address to, string calldata tokenURI_, string calldata contentHash)
         external onlyOwner returns (uint256)
     {
-        bytes32 h = keccak256(abi.encodePacked(contentHash));
-        require(!usedHashes[h], "Content already minted");
-        usedHashes[h] = true;
         _tokenIds++;
         uint256 newId = _tokenIds;
         _safeMint(to, newId);

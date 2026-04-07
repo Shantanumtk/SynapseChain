@@ -118,6 +118,9 @@ async def mint_nft(req: MintRequest):
         tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
+        if receipt.status == 0:
+            raise Exception("Mint transaction reverted — content may already be minted (duplicate hash)")
+
         # Get tokenId from totalSupply after mint
         try:
             nft_read = get_contract("KnowledgeNFT")

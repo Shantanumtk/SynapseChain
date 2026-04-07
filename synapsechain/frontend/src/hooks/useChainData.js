@@ -71,6 +71,7 @@ export function useChainData(provider) {
                 contentHash: asset.contentHash,
                 title:       meta.title || "Knowledge Asset #" + tokenId,
                 description: meta.description || "On-chain asset " + asset.contentHash.slice(0, 10) + "...",
+                category:    meta.category || "",
               };
             } catch { return null; }
           })
