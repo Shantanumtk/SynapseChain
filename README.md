@@ -1,187 +1,226 @@
-=============================================================
-  SynapseChain — CPSC-559 Final Project
-  California State University, Fullerton | Spring 2026
-=============================================================
+# SynapseChain
+### A Blockchain-Powered Dual Marketplace for Human Knowledge and AI Data Licensing
+**CPSC-559: Blockchain Technology | Final Project | California State University, Fullerton | Spring 2026**
 
-------------------------------------------------------------
-TEAM MEMBER
-------------------------------------------------------------
-Name   : Shantanu Mitkari
-CWID   : 824244867
-Email  : shantanusmitkari@csu.fullerton.edu
+---
 
-------------------------------------------------------------
-PROJECT REPOSITORY
-------------------------------------------------------------
-GitHub : https://github.com/Shantanumtk/SynapseChain
+## 👤 Team Member
 
-Note   : Solo presenter — Shantanu Mitkari will demo in person.
+| Field | Details |
+|---|---|
+| **Name** | Shantanu Mitkari |
+| **CWID** | 824244867 |
+| **Email** | shantanusmitkari@csu.fullerton.edu |
+| **Team Size** | Solo (1 member) |
 
-------------------------------------------------------------
-PROJECT DESCRIPTION
-------------------------------------------------------------
-SynapseChain is a fully functional decentralized dual
-marketplace built on the Ethereum blockchain (Ganache).
+> **Note:** Solo presenter — Shantanu Mitkari
 
-It enables two types of transactions:
-  1. Humans selling knowledge to other humans as ERC-721 NFTs
-  2. Humans licensing their data to AI companies under
-     explicit on-chain consent agreements (revocable anytime)
+---
 
-Key components:
-  - 6 Solidity smart contracts (ERC-721, ERC-20, Custom)
-  - 5 autonomous AI agents (LangGraph + OpenAI API)
-  - FastAPI backend with Web3.py blockchain integration
-  - React + Vite frontend with MetaMask + Ethers.js
-  - AWS EC2 deployment via Terraform + Docker Compose
+## 🔗 Project Repository
 
-------------------------------------------------------------
-IMPROVEMENTS
-------------------------------------------------------------
-The project has been deployed to AWS EC2 using Terraform
-as an improvement over the local-only development setup.
+**GitHub:** [https://github.com/Shantanumtk/SynapseChain](https://github.com/Shantanumtk/SynapseChain)
 
-  - Terraform provisions an AWS EC2 instance automatically
-  - All services (Ganache, FastAPI backend, React frontend)
-    run via Docker Compose on the EC2 instance
-  - Security groups configured to expose only required ports
-  - The live deployment can be accessed via the EC2 public IP
+---
 
-This improvement demonstrates real-world cloud deployment
-of a full-stack blockchain + agentic AI application.
+## 📌 Project Description
 
-------------------------------------------------------------
-HOW TO RUN THE PROJECT
-------------------------------------------------------------
+SynapseChain is a fully functional decentralized dual marketplace built on the Ethereum blockchain (Ganache). It enables two types of transactions:
 
-PREREQUISITES
-  - Node.js v18+
-  - Python 3.11+
-  - Docker + Docker Compose
-  - MetaMask browser extension
-  - Ganache CLI or Ganache Desktop
-  - An OpenAI API key
+1. **Human → Human:** Selling knowledge as ERC-721 NFTs on a decentralized marketplace
+2. **Human → AI:** Licensing personal data to AI companies under explicit on-chain consent agreements that can be revoked at any time
 
-------------------------------------------------------------
-STEP 1 — Clone the repository
-------------------------------------------------------------
-  git clone https://github.com/Shantanumtk/SynapseChain.git
-  cd SynapseChain
+**Key components:**
+- 6 Solidity smart contracts (ERC-721, ERC-20, Custom)
+- 5 autonomous AI agents (LangGraph + OpenAI API)
+- FastAPI backend with Web3.py blockchain integration
+- React + Vite frontend with MetaMask + Ethers.js
+- AWS EC2 deployment via Terraform + Docker Compose
 
-------------------------------------------------------------
-STEP 2 — Set up environment variables
-------------------------------------------------------------
-  cp .env.example .env
+---
 
-  Edit .env and fill in:
-    OPENAI_API_KEY=your_openai_api_key
-    GANACHE_URL=http://localhost:8545
-    MNEMONIC=your_ganache_mnemonic
+## 🚀 Improvements
 
-------------------------------------------------------------
-STEP 3 — Start Ganache (local blockchain)
-------------------------------------------------------------
-  Option A: Ganache Desktop
-    - Open Ganache Desktop
-    - Create a new workspace
-    - Set port to 8545, Chain ID to 1337
+The project has been deployed to **AWS EC2 using Terraform** as an improvement over the local-only development setup:
 
-  Option B: Ganache CLI
-    npx ganache --port 8545 --chainId 1337
+- Terraform provisions an AWS EC2 instance automatically
+- All services (Ganache, FastAPI backend, React frontend) run via Docker Compose on the EC2 instance
+- Security groups configured to expose only required ports
+- The live deployment is accessible via the EC2 public IP
 
-------------------------------------------------------------
-STEP 4 — Deploy smart contracts
-------------------------------------------------------------
-  cd blockchain
-  npm install
-  npx hardhat compile
-  npx hardhat run scripts/deploy.js --network ganache
-  cd ..
+This demonstrates real-world cloud deployment of a full-stack blockchain + agentic AI application.
 
-  This will deploy all 6 contracts and save ABIs to:
-    backend/core/abis/
-    frontend/src/utils/abis/
+---
 
-------------------------------------------------------------
-STEP 5 — Start the backend
-------------------------------------------------------------
-  cd backend
-  pip install -r requirements.txt
-  uvicorn api.main:app --reload --port 8000
-  cd ..
+## ⚙️ How to Run the Project
 
-  Backend runs at: http://localhost:8000
-  API docs at:     http://localhost:8000/docs
+### Prerequisites
+- Node.js v18+
+- Python 3.11+
+- Docker + Docker Compose
+- MetaMask browser extension
+- Ganache CLI or Ganache Desktop
+- An OpenAI API key
 
-------------------------------------------------------------
-STEP 6 — Start the frontend
-------------------------------------------------------------
-  cd frontend
-  npm install
-  npm run dev
-  cd ..
+---
 
-  Frontend runs at: http://localhost:5173
+### Step 1 — Clone the Repository
 
-------------------------------------------------------------
-STEP 7 — Connect MetaMask
-------------------------------------------------------------
-  1. Open MetaMask in your browser
-  2. Add a new network:
-       Network Name : SynapseChain Local
-       RPC URL      : http://localhost:8545
-       Chain ID     : 1337
-       Currency     : ETH
-  3. Import a test account using a private key from Ganache
+```bash
+git clone https://github.com/Shantanumtk/SynapseChain.git
+cd SynapseChain
+```
 
-------------------------------------------------------------
-STEP 8 — (Optional) Run with Docker Compose
-------------------------------------------------------------
-  docker-compose up --build
+---
 
-  This starts Ganache + backend + frontend together.
-  Then follow Step 4 to deploy contracts.
+### Step 2 — Set Up Environment Variables
 
-------------------------------------------------------------
-STEP 9 — (Optional) AWS EC2 Deployment via Terraform
-------------------------------------------------------------
-  cd infra
-  terraform init
-  terraform apply
-  cd ..
+```bash
+cp .env.example .env
+```
 
-  SSH into the EC2 instance and run Docker Compose there.
+Edit `.env` and fill in:
+```
+OPENAI_API_KEY=your_openai_api_key
+GANACHE_URL=http://localhost:8545
+MNEMONIC=your_ganache_mnemonic
+```
 
-------------------------------------------------------------
-DEMO FLOW
-------------------------------------------------------------
-  1. Connect MetaMask wallet on the frontend
-  2. Go to Knowledge Market → Upload a knowledge asset
-  3. AI Quality Agent rates it, Valuation Agent prices it
-  4. NFT is minted and listed on the marketplace
-  5. Switch to a second MetaMask account → Buy the NFT
-  6. Go to Data Licensing → List data for AI licensing
-  7. Licensing Agent negotiates → deal recorded on-chain
-  8. Go to My Assets → Revoke consent → Consent Agent removes access
-  9. Go to Bounty Board → Post a bounty → Bounty Agent matches it
+---
 
-------------------------------------------------------------
-SMART CONTRACTS
-------------------------------------------------------------
-  KnowledgeNFT.sol      — ERC-721: knowledge asset NFTs
-  DataLicense.sol       — ERC-721: AI data license tokens
-  Marketplace.sol       — Buy/sell knowledge NFTs
-  LicenseMarketplace.sol — AI licensing transactions
-  RewardToken.sol       — ERC-20: quality reward token
-  BountyBoard.sol       — Bounty post + auto-payment
+### Step 3 — Start Ganache (Local Blockchain)
 
-------------------------------------------------------------
-AI AGENTS
-------------------------------------------------------------
-  Valuation Agent  — Prices knowledge NFTs dynamically
-  Quality Agent    — Rates uploaded knowledge content
-  Licensing Agent  — Negotiates AI data license terms
-  Bounty Agent     — Matches bounties to providers
-  Consent Agent    — Handles on-chain consent revocation
+**Option A: Ganache Desktop**
+- Open Ganache Desktop
+- Create a new workspace
+- Set port to `8545`, Chain ID to `1337`
 
-=============================================================
+**Option B: Ganache CLI**
+```bash
+npx ganache --port 8545 --chainId 1337
+```
+
+---
+
+### Step 4 — Deploy Smart Contracts
+
+```bash
+cd blockchain
+npm install
+npx hardhat compile
+npx hardhat run scripts/deploy.js --network ganache
+cd ..
+```
+
+This deploys all 6 contracts and saves ABIs to:
+- `backend/core/abis/`
+- `frontend/src/utils/abis/`
+
+---
+
+### Step 5 — Start the Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn api.main:app --reload --port 8000
+cd ..
+```
+
+- Backend: [http://localhost:8000](http://localhost:8000)
+- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+### Step 6 — Start the Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+cd ..
+```
+
+- Frontend: [http://localhost:5173](http://localhost:5173)
+
+---
+
+### Step 7 — Connect MetaMask
+
+1. Open MetaMask in your browser
+2. Add a new network:
+
+| Field | Value |
+|---|---|
+| Network Name | SynapseChain Local |
+| RPC URL | http://localhost:8545 |
+| Chain ID | 1337 |
+| Currency | ETH |
+
+3. Import a test account using a private key from Ganache
+
+---
+
+### Step 8 — Run with Docker Compose
+
+```bash
+docker-compose up --build
+```
+
+This starts Ganache + backend + frontend together. Then follow Step 4 to deploy contracts.
+
+---
+
+### Step 9 — AWS EC2 Deployment via Terraform
+
+```bash
+cd infra
+terraform init
+terraform apply
+cd ..
+```
+
+SSH into the EC2 instance and run Docker Compose there.
+
+---
+
+## 🎬 Demo Flow
+
+1. Connect MetaMask wallet on the frontend
+2. Go to **Knowledge Market** → Upload a knowledge asset
+3. AI Quality Agent rates it, Valuation Agent prices it
+4. NFT is minted and listed on the marketplace
+5. Switch to a second MetaMask account → Buy the NFT
+6. Go to **Data Licensing** → List data for AI licensing
+7. Licensing Agent negotiates → deal recorded on-chain
+8. Go to **My Assets** → Revoke consent → Consent Agent removes access
+9. Go to **Bounty Board** → Post a bounty → Bounty Agent matches it
+
+---
+
+## 📄 Smart Contracts
+
+| Contract | Standard | Purpose |
+|---|---|---|
+| `KnowledgeNFT.sol` | ERC-721 | Knowledge asset NFTs |
+| `DataLicense.sol` | ERC-721 | AI data license tokens |
+| `Marketplace.sol` | Custom | Buy/sell knowledge NFTs |
+| `LicenseMarketplace.sol` | Custom | AI licensing transactions |
+| `RewardToken.sol` | ERC-20 | Quality reward token |
+| `BountyBoard.sol` | Custom | Bounty post + auto-payment |
+
+---
+
+## 🤖 AI Agents
+
+| Agent | Function |
+|---|---|
+| Valuation Agent | Prices knowledge NFTs dynamically |
+| Quality Agent | Rates uploaded knowledge content |
+| Licensing Agent | Negotiates AI data license terms |
+| Bounty Agent | Matches bounties to providers |
+| Consent Agent | Handles on-chain consent revocation |
+
+---
+
+*SynapseChain | Shantanu Mitkari | CSUF Spring 2026*
