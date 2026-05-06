@@ -3,15 +3,25 @@
 
 services:
   ganache:
-    image: node:20-alpine
+    image: node:20
     container_name: synapse-ganache
     working_dir: /app
-    command: sh -c "npm install -g ganache && ganache --deterministic --accounts 10 --chainId 1337 --networkId 1337 --gasLimit 12000000 --host 0.0.0.0 --db /data"
+    command: >-
+      sh -c "npm install -g ganache &&
+      ganache
+      --server.host 0.0.0.0
+      --wallet.totalAccounts 10
+      --wallet.defaultBalance 1000
+      --chain.networkId 1337
+      --chain.chainId 1337
+      --wallet.deterministic
+      --miner.blockGasLimit 12000000
+      --database.dbPath /data"
     volumes:
       - ganache-data:/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8545 || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"net_version\",\"params\":[],\"id\":1}' http://localhost:8545 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10

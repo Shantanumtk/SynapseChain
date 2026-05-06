@@ -1,5 +1,5 @@
 # SynapseChain Demo Script
-> CPSC-559 | Shantanu Kulkarni
+> CPSC-559 | Shantanu Mitkari
 
 ## Pre-Demo Checklist
 ```bash

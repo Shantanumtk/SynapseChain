@@ -23,15 +23,15 @@ fi
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
-docker-compose -f docker-compose.dev.yml down 2>/dev/null || true
+docker compose -f docker-compose.dev.yml down 2>/dev/null || true
 
 # Start fresh
 echo "🚀 Starting containers..."
-docker-compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml up -d --build
 
 # Wait for deployer to finish
 echo "⏳ Waiting for contracts to deploy..."
-until docker-compose -f docker-compose.dev.yml logs deployer 2>/dev/null | grep -q "DEPLOY_DONE"; do
+until docker compose -f docker-compose.dev.yml logs deployer 2>/dev/null | grep -q "DEPLOY_DONE"; do
   sleep 3
   printf "."
 done
