@@ -14,7 +14,7 @@ export default function MyAssets() {
   const { address, balance, provider, connect } = useWallet();
   const [signer, setSigner] = useState(null);
   const { myLicenses: chainLicenses, ownedNFTs, bounties, loading: chainLoading, refetch } = useChainData(provider);
-  const { rewardToken } = useContracts(provider);
+  const { rewardToken, synrTreasury } = useContracts(provider);
 
   // Mock owned data — in prod, read from chain events filtered by address
   // myNFTs computed from ownedNFTs below
@@ -43,6 +43,51 @@ export default function MyAssets() {
       .then(raw => setRB(parseFloat(formatEther(raw)).toFixed(2)))
       .catch(() => {});
   }, [rewardToken, address, chainLoading]);
+
+  const [synrInput, setSynrInput]       = useState("");
+  const [convertStep, setConvertStep]   = useState("idle"); // idle | approving | converting | done
+  const [convertStatus, setConvertMsg]  = useState("");
+  const [treasuryBal, setTreasuryBal]   = useState("0");
+
+  useEffect(() => {
+    if (!synrTreasury) return;
+    synrTreasury.treasuryBalance()
+      .then(raw => setTreasuryBal(parseFloat(formatEther(raw)).toFixed(3)))
+      .catch(() => {});
+  }, [synrTreasury, chainLoading]);
+
+  const ethPreview = synrInput ? (parseFloat(synrInput) * 0.001).toFixed(4) : "0.0000";
+
+  async function handleConvert() {
+    if (!synrInput || parseFloat(synrInput) <= 0) return;
+    const { parseEther: pe } = await import("ethers");
+    const amount = pe(synrInput);
+    try {
+      setConvertStep("approving");
+      setConvertMsg("Step 1/2 — Approving SYNR spend...");
+      const s = await getSigner();
+      const rt = rewardToken.connect(s);
+      const approveTx = await rt.approve(await synrTreasury.getAddress(), amount);
+      await approveTx.wait();
+
+      setConvertStep("converting");
+      setConvertMsg("Step 2/2 — Converting SYNR to ETH...");
+      const treasury = synrTreasury.connect(s);
+      const convertTx = await treasury.convert(amount);
+      await convertTx.wait();
+
+      setConvertStep("done");
+      setConvertMsg(`✅ Converted ${synrInput} SYNR → ${ethPreview} ETH`);
+      setSynrInput("");
+      await refetch();
+      rewardToken.balanceOf(address).then(raw => setRB(parseFloat(formatEther(raw)).toFixed(2))).catch(() => {});
+      synrTreasury.treasuryBalance().then(raw => setTreasuryBal(parseFloat(formatEther(raw)).toFixed(3))).catch(() => {});
+      setTimeout(() => { setConvertStep("idle"); setConvertMsg(""); }, 4000);
+    } catch (e) {
+      setConvertStep("idle");
+      setConvertMsg("❌ " + (e.reason || e.message || "Transaction failed"));
+    }
+  }
 
   const [revokeModal, setRevoke]    = useState(null);
   const [revokeLoading, setRL]      = useState(false);
@@ -142,7 +187,7 @@ export default function MyAssets() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {["nfts", "licenses", "history"].map(t => (
+        {["nfts", "licenses", "history", "convert"].map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -150,7 +195,7 @@ export default function MyAssets() {
               tab === t ? "border-accent text-accent" : "border-transparent text-subtle hover:text-text"
             }`}
           >
-            {t === "nfts" ? `Knowledge NFTs (${myNFTs.length})` : t === "licenses" ? `Data Licenses (${myLicenses.length})` : "Transaction History"}
+            {t === "nfts" ? `Knowledge NFTs (${myNFTs.length})` : t === "licenses" ? `Data Licenses (${myLicenses.length})` : t === "history" ? "Transaction History" : "Convert SYNR"}
           </button>
         ))}
       </div>
@@ -270,6 +315,64 @@ export default function MyAssets() {
           </div>
         );
       })()}
+
+      {tab === "convert" && (
+        <div className="max-w-md mx-auto space-y-5">
+          {/* Rate info */}
+          <div className="card p-5 space-y-1">
+            <p className="text-xs text-muted uppercase tracking-widest">Exchange Rate</p>
+            <p className="text-2xl font-bold text-text">1 SYNR <span className="text-subtle font-normal text-lg">= 0.001 ETH</span></p>
+            <p className="text-xs text-subtle">Treasury balance: {treasuryBal} ETH available</p>
+          </div>
+
+          {/* Input */}
+          <div className="card p-5 space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-muted uppercase tracking-widest">Amount to Convert</label>
+                <span className="text-xs text-subtle">Available: {rewardBalance} SYNR</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={synrInput}
+                  onChange={e => setSynrInput(e.target.value)}
+                  className="input flex-1 text-lg font-mono"
+                />
+                <button
+                  onClick={() => setSynrInput(rewardBalance)}
+                  className="btn-secondary text-xs px-3"
+                >MAX</button>
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div className="flex items-center justify-between rounded-lg bg-surface px-4 py-3">
+              <span className="text-sm text-subtle">You receive</span>
+              <span className="text-lg font-bold font-mono text-success">{ethPreview} ETH</span>
+            </div>
+
+            {/* Status */}
+            {convertStatus && (
+              <p className={`text-sm ${convertStatus.startsWith("✅") ? "text-success" : convertStatus.startsWith("❌") ? "text-danger" : "text-accent"}`}>
+                {convertStatus}
+              </p>
+            )}
+
+            {/* Button */}
+            <button
+              onClick={handleConvert}
+              disabled={!synrInput || parseFloat(synrInput) <= 0 || convertStep === "approving" || convertStep === "converting"}
+              className="btn-primary w-full"
+            >
+              {convertStep === "approving" ? "Approving..." : convertStep === "converting" ? "Converting..." : convertStep === "done" ? "Done!" : "Convert to ETH"}
+            </button>
+            <p className="text-xs text-muted text-center">Two MetaMask steps: Approve SYNR → Confirm conversion</p>
+          </div>
+        </div>
+      )}
 
       {revokeModal && (
         <TxnModal

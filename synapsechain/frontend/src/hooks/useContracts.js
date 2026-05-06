@@ -40,7 +40,15 @@ const BOUNTY_BOARD_ABI = [
 
 const REWARD_TOKEN_ABI = [
   "function balanceOf(address account) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
   "function symbol() view returns (string)",
+];
+
+const SYNR_TREASURY_ABI = [
+  "function convert(uint256 synrAmount)",
+  "function ethForSynr(uint256 synrAmount) pure returns (uint256)",
+  "function treasuryBalance() view returns (uint256)",
+  "function SYNR_RATE() view returns (uint256)",
 ];
 
 export function useContracts(signer) {
@@ -53,5 +61,6 @@ export function useContracts(signer) {
     dataLicense:        new Contract(CONTRACT_ADDRESSES.DataLicense,        DATA_LICENSE_ABI,        signer),
     bountyBoard:        new Contract(CONTRACT_ADDRESSES.BountyBoard,        BOUNTY_BOARD_ABI,        signer),
     rewardToken:        new Contract(CONTRACT_ADDRESSES.RewardToken,        REWARD_TOKEN_ABI,        signer),
+    synrTreasury:       new Contract(CONTRACT_ADDRESSES.SYNRTreasury,       SYNR_TREASURY_ABI,       signer),
   };
 }

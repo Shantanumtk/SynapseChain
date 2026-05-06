@@ -28,9 +28,15 @@ async function main() {
   // Seed skips direct mintReward — rewards are minted via Marketplace on NFT sales
   console.log("  Reward tokens minted on NFT sales");
 
+  const deployer       = new ethers.Wallet(ACCOUNTS.deployer.key, ethers.provider);
   const BountyBoard        = await ethers.getContractAt("BountyBoard",        addresses.BountyBoard,        buyer);
   const LicenseMarketplace = await ethers.getContractAt("LicenseMarketplace", addresses.LicenseMarketplace, seller);
   const LicenseMarketAI    = await ethers.getContractAt("LicenseMarketplace", addresses.LicenseMarketplace, ai_company);
+  const SYNRTreasury       = await ethers.getContractAt("SYNRTreasury",       addresses.SYNRTreasury,       deployer);
+
+  // Fund treasury so users can convert SYNR → ETH immediately on demo
+  await (await SYNRTreasury.fund({ value: ethers.parseEther("5") })).wait();
+  console.log("  Treasury funded — 5 ETH (supports up to 5000 SYNR conversions)");
 
   await (await BountyBoard.postBounty(
     "Solidity reentrancy attack guide with exploit examples and mitigation patterns.",

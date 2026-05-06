@@ -52,12 +52,16 @@ async function main() {
     await DataLicense.getAddress(),
     await RewardToken.getAddress()
   ]);
-  const BountyBoard = await ethers.deployContract("BountyBoard");
+  const BountyBoard    = await ethers.deployContract("BountyBoard");
+  const SYNRTreasury   = await ethers.deployContract("SYNRTreasury", [
+    await RewardToken.getAddress()
+  ]);
 
   await Promise.all([
     Marketplace.waitForDeployment(),
     LicenseMarketplace.waitForDeployment(),
     BountyBoard.waitForDeployment(),
+    SYNRTreasury.waitForDeployment(),
   ]);
 
   // KnowledgeNFT: keep deployer as owner (backend mints directly)
@@ -78,6 +82,7 @@ async function main() {
     Marketplace:        await Marketplace.getAddress(),
     LicenseMarketplace: await LicenseMarketplace.getAddress(),
     BountyBoard:        await BountyBoard.getAddress(),
+    SYNRTreasury:       await SYNRTreasury.getAddress(),
   };
   console.table(addresses);
 
