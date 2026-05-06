@@ -52,6 +52,7 @@ contract Marketplace is ReentrancyGuard {
         payable(l.seller).transfer(sellerAmount);
         payable(feeRecipient).transfer(fee);
         if (msg.value > l.price) payable(msg.sender).transfer(msg.value - l.price);
+        rewardToken.mintReward(l.seller, REWARD_PER_SALE, tokenId);
         emit Sold(tokenId, msg.sender, l.price);
     }
 

@@ -48,6 +48,7 @@ contract LicenseMarketplace is ReentrancyGuard {
             dl.owner, msg.sender, useCase, duration, msg.value
         );
         payable(dl.owner).transfer(msg.value);
+        rewardToken.mintReward(dl.owner, REWARD_PER_LICENSE, licenseId);
         emit LicenseDeal(licenseId, listingId, msg.sender);
         return licenseId;
     }

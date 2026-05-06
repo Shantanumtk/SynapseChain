@@ -1,0 +1,16 @@
+# Terraform state — contains secrets in plaintext
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# tfvars files with real values
+terraform.tfvars
+*.auto.tfvars
+
+# Terraform working directories
+.terraform/
+.terraform.lock.hcl
+
+# Crash logs
+crash.log
+crash.*.log

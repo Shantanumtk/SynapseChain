@@ -13,7 +13,7 @@ import EmptyState from "../components/EmptyState";
 export default function MyAssets() {
   const { address, balance, provider, connect } = useWallet();
   const [signer, setSigner] = useState(null);
-  const { myLicenses: chainLicenses, ownedNFTs, loading: chainLoading, refetch } = useChainData(provider);
+  const { myLicenses: chainLicenses, ownedNFTs, bounties, loading: chainLoading, refetch } = useChainData(provider);
 
   // Mock owned data — in prod, read from chain events filtered by address
   // myNFTs computed from ownedNFTs below
@@ -226,6 +226,18 @@ export default function MyAssets() {
           }
           if (l.aiBuyer?.toLowerCase() === address?.toLowerCase()) {
             txns.push({ type: "License Purchased", detail: l.useCase + " · " + l.compensation + " ETH sent", tokenId: l.tokenId, dir: "out" });
+          }
+        });
+        (bounties || []).forEach(b => {
+          if (b.poster?.toLowerCase() === address?.toLowerCase()) {
+            if (b.status === "cancelled") {
+              txns.push({ type: "Bounty Cancelled", detail: b.description + " · " + b.reward + " ETH returned", tokenId: b.id, dir: "in" });
+            } else {
+              txns.push({ type: "Bounty Posted", detail: b.description + " · " + b.reward + " ETH escrowed", tokenId: b.id, dir: "out" });
+            }
+          }
+          if (b.fulfiller?.toLowerCase() === address?.toLowerCase() && b.status === "fulfilled") {
+            txns.push({ type: "Bounty Fulfilled", detail: b.description + " · " + b.reward + " ETH earned", tokenId: b.id, dir: "in" });
           }
         });
         if (txns.length === 0) return (

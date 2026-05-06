@@ -65,6 +65,12 @@ async function main() {
   await DataLicense.transferOwnership(await LicenseMarketplace.getAddress());
   console.log("  DataLicense ownership -> LicenseMarketplace");
 
+  // Grant MINTER_ROLE so both marketplaces can mint SYNR rewards
+  const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("MINTER_ROLE"));
+  await RewardToken.grantRole(MINTER_ROLE, await Marketplace.getAddress());
+  await RewardToken.grantRole(MINTER_ROLE, await LicenseMarketplace.getAddress());
+  console.log("  MINTER_ROLE granted -> Marketplace + LicenseMarketplace");
+
   const addresses = {
     KnowledgeNFT:       await KnowledgeNFT.getAddress(),
     DataLicense:        await DataLicense.getAddress(),
