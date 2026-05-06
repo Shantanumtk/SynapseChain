@@ -14,7 +14,7 @@ export default function MyAssets() {
   const { address, balance, provider, connect } = useWallet();
   const [signer, setSigner] = useState(null);
   const { myLicenses: chainLicenses, ownedNFTs, bounties, loading: chainLoading, refetch } = useChainData(provider);
-  const { contracts } = useContracts(provider);
+  const { rewardToken } = useContracts(provider);
 
   // Mock owned data — in prod, read from chain events filtered by address
   // myNFTs computed from ownedNFTs below
@@ -38,11 +38,11 @@ export default function MyAssets() {
   const [rewardBalance, setRB]      = useState("0");
 
   useEffect(() => {
-    if (!contracts?.rewardToken || !address) return;
-    contracts.rewardToken.balanceOf(address)
+    if (!rewardToken || !address) return;
+    rewardToken.balanceOf(address)
       .then(raw => setRB(parseFloat(formatEther(raw)).toFixed(2)))
       .catch(() => {});
-  }, [contracts, address, chainLoading]);
+  }, [rewardToken, address, chainLoading]);
 
   const [revokeModal, setRevoke]    = useState(null);
   const [revokeLoading, setRL]      = useState(false);
