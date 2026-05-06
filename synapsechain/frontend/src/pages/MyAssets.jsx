@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserProvider, formatEther } from "ethers";
+import { BrowserProvider, formatEther, parseEther } from "ethers";
 import { useWallet } from "../hooks/useWallet";
 import { useContracts } from "../hooks/useContracts";
 import { api } from "../hooks/useApi";
@@ -60,8 +60,11 @@ export default function MyAssets() {
 
   async function handleConvert() {
     if (!synrInput || parseFloat(synrInput) <= 0) return;
-    const { parseEther: pe } = await import("ethers");
-    const amount = pe(synrInput);
+    if (parseFloat(synrInput) > parseFloat(rewardBalance)) {
+      setConvertMsg("❌ Insufficient SYNR balance. You have " + rewardBalance + " SYNR.");
+      return;
+    }
+    const amount = parseEther(synrInput);
     try {
       setConvertStep("approving");
       setConvertMsg("Step 1/2 — Approving SYNR spend...");
